@@ -31,8 +31,12 @@ def threaded_client(conn):
                 print("Disconnected")
                 break
             else:
-                print("Received: ", reply)
-            # conn.sendall(pickle.dumps(reply))
+                if reply[0] == answer[0] and reply[1] == answer[1]:
+                    reply = "True"
+                else:
+                    reply = "False"
+
+            conn.sendall(pickle.dumps(reply))
         except:
             break
 

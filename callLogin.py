@@ -8,7 +8,7 @@ class MyForm(QDialog):
         super().__init__()
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        self.ui.pushButton.clicked.connect(self.sendInfo)
+        self.ui.pushButton.clicked.connect(self.setStatusText)
         self.show()
 
     def sendInfo(self):
@@ -16,7 +16,20 @@ class MyForm(QDialog):
         password = self.ui.lineEditPassword.text()
         list = [login, password]
         n = Network()
-        n.send(list)
+        reply = n.send(list)
+        return reply
+
+    def setStatusText(self):
+        reply = MyForm.sendInfo(self)
+        if reply == "True":
+            self.ui.label.setText("<font color='green'>Successful</font>")
+            print("Successful")
+            return True
+        else:
+            self.ui.label.setText("<font color='red'>Wrong login or password</font>")
+            print("Failed")
+            return False
+
 
 
 if __name__=="__main__":

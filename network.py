@@ -10,7 +10,6 @@ class Network:
         self.addr = (self.server, self.port)
         self.p = self.connect()
         print(self.p)
-
     def connect(self):
         try:
             self.client.connect(self.addr)
