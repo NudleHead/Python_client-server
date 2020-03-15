@@ -1,5 +1,7 @@
 import socket
 import pickle
+import pathlib
+import json
 from _thread import *
 import sys
 
@@ -16,7 +18,29 @@ except socket.error as e:
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-answer = ["Ola", "spi"]
+
+def check_if_exist(reply):
+    file = pathlib.Path("Users/" + reply[0] + ".json")
+    if file.exists():
+        print("exist")
+        return "True"
+    else:
+        print("Doesn't exist")
+        return "False"
+
+
+def check_password(reply):
+    path = "Users/"+reply[0]+".json"
+    with open(path) as json_file:
+        data = json.load(json_file)
+        password = data["password"]
+
+    if reply[1] == password:
+        print("pass correct")
+        return "True"
+    else:
+        print("pass un correct")
+        return "False"
 
 
 def threaded_client(conn):
@@ -31,12 +55,19 @@ def threaded_client(conn):
                 print("Disconnected")
                 break
             else:
-                if reply[0] == answer[0] and reply[1] == answer[1]:
-                    reply = "True"
+                # if reply[0] == answer[0] and reply[1] == answer[1]:
+                login = check_if_exist(reply)
+                if login == "True":
+                    password = check_password(reply)
+                    if password == "True":
+                        send_answer = "True"
+                    else:
+                        send_answer = "False"
                 else:
-                    reply = "False"
+                    send_answer = "False"
 
-            conn.sendall(pickle.dumps(reply))
+            conn.sendall(pickle.dumps(send_answer))
+
         except:
             break
 
