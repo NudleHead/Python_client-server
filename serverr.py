@@ -68,25 +68,28 @@ def user_account_information(reply):
 
 def operation_on_user_balance(reply):
     info = money_transfer(reply)
-    with open("Users/"+info[0]+".json") as json_file:
-        data = json.load(json_file)
-        sender_balance = data["balance"]
-        update_sender_balance = sender_balance - int(info[2])
-        data["balance"] = update_sender_balance
+    if info is False:
+        return False
+    else:
+        with open("Users/"+info[0]+".json") as json_file:
+            data = json.load(json_file)
+            sender_balance = data["balance"]
+            update_sender_balance = sender_balance - int(info[2])
+            data["balance"] = update_sender_balance
 
-    with open("Users/"+info[0]+".json", "w") as json_file:
-        json.dump(data, json_file)
+        with open("Users/"+info[0]+".json", "w") as json_file:
+            json.dump(data, json_file)
 
-    with open("Users/" + info[1] + ".json") as json_file:
-        data_receiver = json.load(json_file)
-        receiver_balance = data_receiver["balance"]
-        update_receiver_balance = receiver_balance + int(info[2])
-        data_receiver["balance"] = update_receiver_balance
+        with open("Users/" + info[1] + ".json") as json_file:
+            data_receiver = json.load(json_file)
+            receiver_balance = data_receiver["balance"]
+            update_receiver_balance = receiver_balance + int(info[2])
+            data_receiver["balance"] = update_receiver_balance
 
-    with open("Users/" + info[1] + ".json", "w") as json_file:
-        json.dump(data_receiver, json_file)
+        with open("Users/" + info[1] + ".json", "w") as json_file:
+            json.dump(data_receiver, json_file)
 
-    return [update_sender_balance, update_receiver_balance]
+        return [update_sender_balance, update_receiver_balance]
 
 
 def money_transfer(reply):
@@ -104,6 +107,14 @@ def money_transfer(reply):
 
         else:
             return False
+
+
+def refresh(reply):
+    with open("Users/" + reply[1] + ".json") as json_file:
+        data = json.load(json_file)
+        balance = data["balance"]
+
+        return str(balance)
 
 
 def threaded_client(conn):
@@ -127,7 +138,9 @@ def threaded_client(conn):
                 elif reply[0] == 'transfer':
                     print(reply)
                     send_answer = operation_on_user_balance(reply)
-                    # send_answer = operation_on_user_balance(reply)
+                elif reply[0] == "refresh":
+                    print(reply[1])
+                    send_answer = refresh(reply)
 
             conn.sendall(pickle.dumps(send_answer))
 
