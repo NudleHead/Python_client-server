@@ -17,28 +17,50 @@ class MyForm(QDialog):
         self.window = QtWidgets.QMainWindow()
         self.ai = Ui_UserWindow()
         self.ai.setupUi(self.window)
+        self.ai.pushButtonSend.clicked.connect(self.reply)
         w.hide()
         self.window.show()
 
-    def send_info(self):
+    def send_info(self, operation):
         login = self.ui.lineEditLogin.text()
         password = self.ui.lineEditPassword.text()
-        list = [login, password]
+        list = [operation, login, password]
         n = Network()
         reply = n.send(list)
         return reply
 
     def set_status_text(self):
-        reply = MyForm.send_info(self)
+        reply = MyForm.send_info(self, "login")
         if reply == "True":
             self.ui.label.setText("<font color='green'>Successful</font>")
             print("Successful")
             MyForm.open_window(self)
+            MyForm.set_user_information(self)
             return True
         else:
             self.ui.label.setText("<font color='red'>Wrong login or password</font>")
             print("Failed")
             return False
+
+    def set_user_information(self):
+        reply = MyForm.send_info(self, "account")
+        self.ai.labelUser.setText(f"User: {reply[0]}")
+        self.ai.lineEditAccountNumber.setText(str(reply[1]))
+        self.ai.lineEditCurrentBalance.setText(str(reply[2]))
+
+    def send_information_to_check(self):
+        name = self.ai.labelUser.text()
+        sender_number = self.ai.lineEditSenderNumber.text()
+        receiver_number = self.ai.lineEditReceiverNumber.text()
+        amount = self.ai.lineEditAmount.text()
+        list_of_information = ["transfer", name, sender_number, receiver_number, amount]
+        n = Network()
+        reply = n.send(list_of_information)
+        return reply
+
+    def reply(self):
+        reply = MyForm.send_information_to_check(self)
+        print(reply)
 
 
 if __name__=="__main__":
